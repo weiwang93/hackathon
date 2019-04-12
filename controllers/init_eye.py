@@ -33,7 +33,8 @@ class initEye(BaseHandler):
                 with open(file_path, 'wb') as up:
                     up.write(meta['body'])
 
-            ret['open_eye_rate'] = check_blink_face(file_path)
+            # ret['open_eye_rate'] = check_blink_face(file_path)
+            ret['open_eye_rate'] = check_blink(file_path)
             config_instance.open_eye_rate = ret['open_eye_rate']
 
 
@@ -46,7 +47,8 @@ class initEye(BaseHandler):
                 with open(file_path, 'wb') as up:
                     up.write(meta['body'])
 
-            ret['close_eye_rate'] = check_blink_face(file_path)
+            # ret['close_eye_rate'] = check_blink_face(file_path)
+            ret['close_eye_rate'] = check_blink(file_path)
             config_instance.close_eye_rate = ret['close_eye_rate']
 
             if config_instance.close_eye_rate * 1.3 > config_instance.open_eye_rate:
