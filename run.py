@@ -15,7 +15,6 @@ import tornado.web
 
 from tornado.options import define, options
 from utils.logger import LOGGER
-
 from config import config_instance
 from urls import urls
 

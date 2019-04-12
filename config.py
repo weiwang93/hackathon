@@ -22,6 +22,8 @@ class Config:
         ## threshold
         self.open_eye_rate = 0
         self.close_eye_rate = 0
+        self.eye_th = 0
 
-        ## location level
+        self.connections = set()
+
 config_instance = Config()

@@ -18,7 +18,9 @@ import tornado.httpserver
 from utils.base import check_blink
 from config import config_instance
 
-class test(tornado.web.RequestHandler):
+from controllers.BaseHandler import BaseHandler
+
+class test(BaseHandler):
     def post(self):
         if config_instance.open_eye_rate == 0 or config_instance.close_eye_rate == 0:
             ret = {
