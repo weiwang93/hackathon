@@ -1,0 +1,41 @@
+'''
+File: base.py
+Project: utils
+File Created: 2019-03-06 3:12:07 pm
+Author: wangwei (wangw11.thu@gmail.com)
+-----
+Last Modified: 2019-03-06 3:12:09 pm
+Modified By: wangwei (wangw11.thu@gmail.com>)
+'''
+import face_recognition
+import time
+
+def get_rate(data):
+    width = []
+    height = []
+    for d in data:
+        (a, b) = d
+        width.append(a)
+        height.append(b)
+    return (max(height)-min(height))/(max(width)-min(width))
+
+def check_blink(path):
+    # Load the jpg file into a numpy array
+    image = face_recognition.load_image_file(path)
+    # Find all facial features in all the faces in the image
+    face_landmarks_list = face_recognition.face_landmarks(image)
+    print("I found {} face(s) in this photograph.".format(len(face_landmarks_list)))
+    for face_landmarks in face_landmarks_list:
+        # Let's trace out each facial feature in the image with a line!
+        left_eye = face_landmarks['left_eye']
+        right_eye = face_landmarks['right_eye']
+        print(get_rate(left_eye))
+        print(get_rate(right_eye))
+
+if __name__ == '__main__':
+
+    check_blink('../../png/00001.png')
+    st = time.time()
+    check_blink('../../1.jpg')
+    print(time.time() -st)
+
