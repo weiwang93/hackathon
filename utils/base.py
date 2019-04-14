@@ -19,6 +19,7 @@ import dlib
 import cv2
 from config import config_instance
 import face_recognition
+import math
 
 
 # 初始化DLIB的人脸检测器（HOG），然后创建面部标志物预测
@@ -38,11 +39,6 @@ def get_eye_rate(data):
         width.append(a)
         height.append(b)
     return (max(height)-min(height))/(max(width)-min(width))
-
-def get_nose_info(data):
-    width = []
-    height = []
-    return
 
 
 def check_blink(path):
@@ -131,7 +127,7 @@ def check_blink_by_bin_face(bin):
     return face_landmarks_list[0]
 
 
-def handler_eye_rate(left_eye, right_eye, rate_list):
+def handler_eye_rate(left_eye, right_eye, rate_list, noise_list):
     rate = (get_eye_rate(left_eye) + get_eye_rate(right_eye)) / 2
     if rate > config_instance.eye_th:
         rate_list.append(1)
@@ -163,12 +159,51 @@ def handler_eye_rate(left_eye, right_eye, rate_list):
                     blink_status.append(0)
             tmp = 1
 
-    if len(blink_status) >= 3 and tmp > 2:
-        rate_list.clear()
-        return 1
+    if len(blink_status) >= 3 and tmp > 2 :
+        if len(noise_list) < 2 or np.std(noise_list,ddof=1) <= 0.025:
+            rate_list.clear()
+            return 1
 
     return 0
 
+def handle_shake(noise, noise_list, lip, lip_list):
+    (fw, fh) = noise[0]
+    (lw, lh) = noise[-1]
+    if(fh - lh != 0):
+        noise_list.append((fw-lw)/(fh-lh))
+
+    lip_h = []
+    for d in lip:
+        (w, h) = d
+        lip_h.append(h)
+
+    if (len(noise_list) < 7):
+        return 0
+
+    lip_list.append(sum(lip_h) / len(lip_h))
+    delta = []
+    for i in range(1, len(noise_list)):
+        delta.append(noise_list[i] - noise_list[i-1])
+
+    tmp = 1
+    total = 0
+    tmp_direction = 0
+    for i in range(1, len(delta)):
+        tmp_direction += delta[i-1]
+
+        if (delta[i] * delta[i-1]) >= 0:
+            tmp += 1
+        else:
+            if tmp > 2 and abs(tmp_direction) > 0.25:
+                total = tmp_direction
+            tmp_direction = 0
+            tmp = 1
+
+    if total != 0 and tmp > 2 and abs(tmp_direction) > 0.25 and np.std(lip_list,ddof=1) < 3:
+        noise_list.clear()
+        lip_list.clear()
+        return total
+    return 0
 
 if __name__ == '__main__':
     check_blink('../../png/00001.png')
